@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Formulário simples</title>
+    <style>
+      body { background:#15a86b; }
+      .container { max-width:420px; margin:0 auto; background:#fff; padding:2rem; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+      input[type="text"] { width:100%; padding:0.5rem; margin-bottom:1rem; border:1px solid #ccc; border-radius:4px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Formulário</h1>
+      <form id="formulario">
+        <div>
+          <label for="field1">Login:</label>
+          <input type="text" id="field1"placeholder="Digite algo..." required />
+        </div>
+        <div>
+          <label for="field2">Senha:</label>
+          <input type="text" id="field2" placeholder="Digite algo..." required />
+        </div>
+        <button type="submit">Enviar</button>
+      </form>
+    </div>
+  </body>
+</html>
