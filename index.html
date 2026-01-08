@@ -1,171 +1,375 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>Viewport Debug</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Informações de Viewport e Dispositivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
 
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-      margin: 0;
-      padding: 16px;
-    }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-    h1 {
-      font-size: 1.4rem;
-      margin-bottom: 16px;
-    }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-    }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
 
-    .card {
-      background: #020617;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 0 0 1px #1e293b inset;
-    }
+        h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
 
-    .card h2 {
-      font-size: 1rem;
-      margin-bottom: 8px;
-      color: #38bdf8;
-    }
+        .info-grid {
+            display: grid;
+            gap: 12px;
+        }
 
-    .row {
-      display: flex;
-      justify-content: space-between;
-      padding: 4px 0;
-      font-size: 0.9rem;
-    }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
 
-    .label {
-      color: #94a3b8;
-    }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
 
-    .value {
-      font-weight: 600;
-    }
+        .info-value {
+            font-family: 'Courier New', monospace;
+            color: #764ba2;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
 
-    footer {
-      margin-top: 24px;
-      font-size: 0.8rem;
-      color: #94a3b8;
-    }
-  </style>
+        .highlight {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .warning {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        .capability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .capability-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .capability-card.active {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .capability-card.inactive {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .capability-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .capability-value {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .update-time {
+            text-align: center;
+            color: white;
+            font-size: 0.9em;
+            margin-top: 20px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>📱 Informações do Dispositivo</h1>
 
-  <h1>📐 Viewport Debug (tempo real)</h1>
+        <!-- Viewport Info -->
+        <div class="card">
+            <h2>🖥️ Informações de Viewport</h2>
+            <div class="info-grid">
+                <div class="info-item highlight">
+                    <span class="info-label">Viewport CSS (width):</span>
+                    <span class="info-value" id="viewportWidth">-</span>
+                </div>
+                <div class="info-item highlight">
+                    <span class="info-label">Viewport CSS (height):</span>
+                    <span class="info-value" id="viewportHeight">-</span>
+                </div>
+                <div class="info-item success">
+                    <span class="info-label">Resolução Física (width):</span>
+                    <span class="info-value" id="screenWidth">-</span>
+                </div>
+                <div class="info-item success">
+                    <span class="info-label">Resolução Física (height):</span>
+                    <span class="info-value" id="screenHeight">-</span>
+                </div>
+                <div class="info-item warning">
+                    <span class="info-label">Device Pixel Ratio:</span>
+                    <span class="info-value" id="pixelRatio">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Viewport Real Calculado:</span>
+                    <span class="info-value" id="calculatedViewport">-</span>
+                </div>
+            </div>
+        </div>
 
-  <div class="grid">
+        <!-- Screen Info -->
+        <div class="card">
+            <h2>📐 Informações da Tela</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Orientação:</span>
+                    <span class="info-value" id="orientation">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Profundidade de Cor:</span>
+                    <span class="info-value" id="colorDepth">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Área Disponível (width):</span>
+                    <span class="info-value" id="availWidth">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Área Disponível (height):</span>
+                    <span class="info-value" id="availHeight">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Zoom Atual:</span>
+                    <span class="info-value" id="zoomLevel">-</span>
+                </div>
+            </div>
+        </div>
 
-    <div class="card">
-      <h2>Visual Viewport (viewport real)</h2>
-      <div class="row">
-        <span class="label">width</span>
-        <span class="value" id="vv-width">—</span>
-      </div>
-      <div class="row">
-        <span class="label">height</span>
-        <span class="value" id="vv-height">—</span>
-      </div>
-      <div class="row">
-        <span class="label">scale (zoom)</span>
-        <span class="value" id="vv-scale">—</span>
-      </div>
+        <!-- Device Capabilities -->
+        <div class="card">
+            <h2>🎯 Capacidades do Dispositivo</h2>
+            <div class="capability-grid">
+                <div class="capability-card" id="touchCard">
+                    <div class="capability-label">Touch Screen</div>
+                    <div class="capability-value" id="touchCapable">-</div>
+                </div>
+                <div class="capability-card" id="hoverCard">
+                    <div class="capability-label">Hover Support</div>
+                    <div class="capability-value" id="hoverCapable">-</div>
+                </div>
+                <div class="capability-card" id="pointerCard">
+                    <div class="capability-label">Pointer Type</div>
+                    <div class="capability-value" id="pointerType">-</div>
+                </div>
+                <div class="capability-card" id="maxTouchCard">
+                    <div class="capability-label">Max Touch Points</div>
+                    <div class="capability-value" id="maxTouchPoints">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Agent -->
+        <div class="card">
+            <h2>🔍 User Agent</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Platform:</span>
+                    <span class="info-value" id="platform">-</span>
+                </div>
+                <div class="info-item" style="flex-direction: column; align-items: flex-start;">
+                    <span class="info-label">User Agent String:</span>
+                    <span class="info-value" id="userAgent" style="word-break: break-all; margin-top: 8px; font-size: 0.85em;">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Media Queries -->
+        <div class="card">
+            <h2>📱 Media Queries Ativas</h2>
+            <div class="info-grid" id="mediaQueries">
+                <!-- Será preenchido via JavaScript -->
+            </div>
+        </div>
+
+        <div class="update-time">
+            Última atualização: <span id="updateTime">-</span>
+        </div>
     </div>
 
-    <div class="card">
-      <h2>Layout Viewport (viewport mínima)</h2>
-      <div class="row">
-        <span class="label">innerWidth</span>
-        <span class="value" id="lw-width">—</span>
-      </div>
-      <div class="row">
-        <span class="label">innerHeight</span>
-        <span class="value" id="lw-height">—</span>
-      </div>
-    </div>
+    <script>
+        function updateInfo() {
+            // Viewport CSS
+            document.getElementById('viewportWidth').textContent = window.innerWidth + 'px';
+            document.getElementById('viewportHeight').textContent = window.innerHeight + 'px';
 
-    <div class="card">
-      <h2>Document Element</h2>
-      <div class="row">
-        <span class="label">clientWidth</span>
-        <span class="value" id="de-width">—</span>
-      </div>
-      <div class="row">
-        <span class="label">clientHeight</span>
-        <span class="value" id="de-height">—</span>
-      </div>
-    </div>
+            // Resolução Física
+            document.getElementById('screenWidth').textContent = screen.width + 'px';
+            document.getElementById('screenHeight').textContent = screen.height + 'px';
 
-    <div class="card">
-      <h2>Device / Input</h2>
-      <div class="row">
-        <span class="label">pointer</span>
-        <span class="value" id="pointer">—</span>
-      </div>
-      <div class="row">
-        <span class="label">hover</span>
-        <span class="value" id="hover">—</span>
-      </div>
-      <div class="row">
-        <span class="label">devicePixelRatio</span>
-        <span class="value" id="dpr">—</span>
-      </div>
-    </div>
+            // Device Pixel Ratio
+            const dpr = window.devicePixelRatio || 1;
+            document.getElementById('pixelRatio').textContent = dpr + 'x';
 
-  </div>
+            // Viewport Real Calculado (Física / DPR)
+            const realWidth = Math.round(screen.width / dpr);
+            const realHeight = Math.round(screen.height / dpr);
+            document.getElementById('calculatedViewport').textContent = 
+                realWidth + 'px × ' + realHeight + 'px';
 
-  <footer>
-    Dica: ative <strong>“Site para computador”</strong>, aplique zoom ou gire a tela para ver as diferenças.
-  </footer>
+            // Orientação
+            const orientation = window.innerWidth > window.innerHeight ? 'Landscape' : 'Portrait';
+            document.getElementById('orientation').textContent = orientation;
 
-  <script>
-    function update() {
-      const vv = window.visualViewport;
+            // Informações da tela
+            document.getElementById('colorDepth').textContent = screen.colorDepth + ' bits';
+            document.getElementById('availWidth').textContent = screen.availWidth + 'px';
+            document.getElementById('availHeight').textContent = screen.availHeight + 'px';
 
-      if (vv) {
-        document.getElementById("vv-width").textContent = vv.width.toFixed(2) + " px";
-        document.getElementById("vv-height").textContent = vv.height.toFixed(2) + " px";
-        document.getElementById("vv-scale").textContent = vv.scale.toFixed(2);
-      } else {
-        document.getElementById("vv-width").textContent = "não suportado";
-        document.getElementById("vv-height").textContent = "não suportado";
-        document.getElementById("vv-scale").textContent = "—";
-      }
+            // Zoom
+            const zoom = Math.round((window.outerWidth / window.innerWidth) * 100);
+            document.getElementById('zoomLevel').textContent = zoom + '%';
 
-      document.getElementById("lw-width").textContent = window.innerWidth + " px";
-      document.getElementById("lw-height").textContent = window.innerHeight + " px";
+            // Touch
+            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            document.getElementById('touchCapable').textContent = hasTouch ? 'SIM ✓' : 'NÃO ✗';
+            document.getElementById('touchCard').className = 'capability-card ' + (hasTouch ? 'active' : 'inactive');
 
-      document.getElementById("de-width").textContent =
-        document.documentElement.clientWidth + " px";
-      document.getElementById("de-height").textContent =
-        document.documentElement.clientHeight + " px";
+            // Hover
+            const hasHover = window.matchMedia('(hover: hover)').matches;
+            document.getElementById('hoverCapable').textContent = hasHover ? 'SIM ✓' : 'NÃO ✗';
+            document.getElementById('hoverCard').className = 'capability-card ' + (hasHover ? 'active' : 'inactive');
 
-      document.getElementById("dpr").textContent = window.devicePixelRatio;
+            // Pointer
+            let pointerType = 'none';
+            if (window.matchMedia('(pointer: fine)').matches) {
+                pointerType = 'fine';
+            } else if (window.matchMedia('(pointer: coarse)').matches) {
+                pointerType = 'coarse';
+            }
+            document.getElementById('pointerType').textContent = pointerType.toUpperCase();
+            document.getElementById('pointerCard').className = 'capability-card ' + 
+                (pointerType !== 'none' ? 'active' : 'inactive');
 
-      document.getElementById("pointer").textContent =
-        matchMedia("(pointer: coarse)").matches ? "coarse (touch)" : "fine (mouse)";
+            // Max Touch Points
+            document.getElementById('maxTouchPoints').textContent = navigator.maxTouchPoints || 0;
+            document.getElementById('maxTouchCard').className = 'capability-card ' + 
+                (navigator.maxTouchPoints > 0 ? 'active' : 'inactive');
 
-      document.getElementById("hover").textContent =
-        matchMedia("(hover: hover)").matches ? "hover disponível" : "sem hover";
-    }
+            // User Agent
+            document.getElementById('platform').textContent = navigator.platform;
+            document.getElementById('userAgent').textContent = navigator.userAgent;
 
-    update();
+            // Media Queries
+            const mediaQueries = [
+                { query: '(max-width: 640px)', label: 'Mobile (< 640px)' },
+                { query: '(min-width: 641px) and (max-width: 768px)', label: 'Tablet Small (641-768px)' },
+                { query: '(min-width: 769px) and (max-width: 1024px)', label: 'Tablet (769-1024px)' },
+                { query: '(min-width: 1025px)', label: 'Desktop (> 1024px)' },
+                { query: '(orientation: portrait)', label: 'Orientação: Portrait' },
+                { query: '(orientation: landscape)', label: 'Orientação: Landscape' },
+                { query: '(hover: hover)', label: 'Hover: Suportado' },
+                { query: '(hover: none)', label: 'Hover: Não suportado' },
+                { query: '(pointer: fine)', label: 'Pointer: Fine (preciso)' },
+                { query: '(pointer: coarse)', label: 'Pointer: Coarse (impreciso)' },
+                { query: '(prefers-color-scheme: dark)', label: 'Preferência: Tema escuro' },
+                { query: '(prefers-color-scheme: light)', label: 'Preferência: Tema claro' }
+            ];
 
-    window.addEventListener("resize", update);
-    window.visualViewport?.addEventListener("resize", update);
-    window.visualViewport?.addEventListener("scroll", update);
-  </script>
+            const mqContainer = document.getElementById('mediaQueries');
+            mqContainer.innerHTML = '';
 
+            mediaQueries.forEach(mq => {
+                const matches = window.matchMedia(mq.query).matches;
+                const div = document.createElement('div');
+                div.className = 'info-item ' + (matches ? 'success' : '');
+                div.innerHTML = `
+                    <span class="info-label">${mq.label}</span>
+                    <span class="info-value">${matches ? 'ATIVA ✓' : 'INATIVA ✗'}</span>
+                `;
+                mqContainer.appendChild(div);
+            });
+
+            // Update time
+            const now = new Date();
+            document.getElementById('updateTime').textContent = 
+                now.toLocaleTimeString('pt-BR');
+        }
+
+        // Atualiza ao carregar
+        updateInfo();
+
+        // Atualiza ao redimensionar
+        window.addEventListener('resize', updateInfo);
+
+        // Atualiza ao mudar orientação
+        window.addEventListener('orientationchange', updateInfo);
+
+        // Atualiza a cada 2 segundos
+        setInterval(updateInfo, 2000);
+    </script>
 </body>
 </html>
