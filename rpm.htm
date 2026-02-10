@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .container { width: 100%; max-width: 400px; text-align: center; }
+
+    #duracao {
+      text-align: center;
+      font-size: 3.5rem;
+      width: 100%;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 1rem;
+      background: #09AA9D;
+      color: #fff;
+      font-family: monospace;
+    }
+
+    #duracao::placeholder { color: rgba(255,255,255,0.5); }
+
+    .info {
+      margin: 1.2rem 0;
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+
+    #voltas {
+      width: 3.5rem;
+      padding: 0.3rem;
+      border: 1px solid #09AA9D;
+      border-radius: 0.4rem;
+      background: #16213e;
+      color: #fff;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    #txtRpm {
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: #09AA9D;
+    }
+
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    button {
+      font-size: 1.2rem;
+      padding: 0.7rem 1.8rem;
+      border: none;
+      border-radius: 0.7rem;
+      cursor: pointer;
+      color: #fff;
+      background: #09AA9D;
+    }
+
+    button:active { opacity: 0.8; }
+
+    #btnZerar {
+      display: none;
+      background: #e74c3c;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <input type="text" id="duracao" placeholder="00:00" maxlength="5">
+
+    <div class="info">
+      <input id="voltas" type="number" min="1" value="1"> volta(s) completa(s) em
+      <span id="txtTempo">--:--</span> </br> corresponde a <span id="txtRpm">--</span> RPM.
+    </div>
+
+    <div class="controls">
+      <button id="btnToggle">&#9654;&#65039; Iniciar</button>
+      <button id="btnZerar">&#9209;&#65039; Zerar</button>
+    </div>
+  </div>
+
+  <script>
+    const duracao = document.getElementById('duracao');
+    const voltas = document.getElementById('voltas');
+    const txtTempo = document.getElementById('txtTempo');
+    const txtRpm = document.getElementById('txtRpm');
+    const btnToggle = document.getElementById('btnToggle');
+    const btnZerar = document.getElementById('btnZerar');
+
+    let startTime = 0;
+    let elapsedTime = 0;
+    let timerInterval = null;
+    let running = false;
+
+    // --- Formatação MM:SS ---
+    function formatTime(totalSeconds) {
+      const min = Math.floor(totalSeconds / 60);
+      const sec = Math.floor(totalSeconds % 60);
+      return String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+    }
+
+    // --- Parsear MM:SS para segundos ---
+    function parseTime(str) {
+      const parts = str.split(':');
+      if (parts.length === 2) {
+        return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      }
+      return 0;
+    }
+
+    // --- Calcular RPM ---
+    function calcRpm(tempoSegundos, numVoltas) {
+      if (tempoSegundos <= 0 || numVoltas <= 0) return '--';
+      const tempoMinutos = tempoSegundos / 60;
+      const rpm = numVoltas / tempoMinutos;
+      return rpm.toFixed(2);
+    }
+
+    // --- Atualizar display e RPM ---
+    function updateDisplay() {
+      const now = Date.now();
+      const totalMs = now - startTime + elapsedTime;
+      const totalSeconds = totalMs / 1000;
+
+      duracao.value = formatTime(totalSeconds);
+
+      const numVoltas = parseInt(voltas.value, 10) || 1;
+      const rpm = calcRpm(totalSeconds, numVoltas);
+      txtTempo.textContent = formatTime(totalSeconds);
+      txtRpm.textContent = rpm;
+    }
+
+    // --- Atualizar RPM a partir de entrada manual ---
+    function updateFromManual() {
+      if (running) return;
+      const totalSeconds = parseTime(duracao.value);
+      const numVoltas = parseInt(voltas.value, 10) || 1;
+
+      if (totalSeconds > 0) {
+        txtTempo.textContent = formatTime(totalSeconds);
+        txtRpm.textContent = calcRpm(totalSeconds, numVoltas);
+      } else {
+        txtTempo.textContent = '--:--';
+        txtRpm.textContent = '--';
+      }
+    }
+
+    // --- Botão toggle: Iniciar / Pausar / Continuar ---
+    btnToggle.addEventListener('click', function () {
+      if (!running) {
+        // Iniciar ou Continuar
+        running = true;
+        startTime = Date.now();
+        duracao.readOnly = true;
+        timerInterval = setInterval(updateDisplay, 200);
+        btnToggle.textContent = '⏸️ Pausar';
+        btnZerar.style.display = 'none';
+      } else {
+        // Pausar
+        running = false;
+        clearInterval(timerInterval);
+        elapsedTime += Date.now() - startTime;
+        duracao.readOnly = false;
+        btnToggle.textContent = '▶️ Continuar';
+        btnZerar.style.display = 'inline';
+      }
+    });
+
+    // --- Botão Zerar ---
+    btnZerar.addEventListener('click', function () {
+      running = false;
+      clearInterval(timerInterval);
+      startTime = 0;
+      elapsedTime = 0;
+      duracao.value = '';
+      duracao.readOnly = false;
+      btnToggle.textContent = '▶️ Iniciar';
+      btnZerar.style.display = 'none';
+      txtTempo.textContent = '--:--';
+      txtRpm.textContent = '--';
+    });
+
+    // --- Validação de entrada MM:SS (original) ---
+    duracao.addEventListener('input', function (e) {
+      if (running) return;
+      let value = e.target.value.replace(/\D/g, '');
+      let resultado = '';
+
+      for (let i = 0; i < value.length && i < 4; i++) {
+        let digito = value[i];
+        if (i === 0 || i === 2) {
+          if (digito > '5') {
+            continue;
+          }
+        }
+        resultado += digito;
+        if (i === 1 && value.length > 2) {
+          resultado += ':';
+        }
+      }
+      e.target.value = resultado;
+      updateFromManual();
+    });
+
+    // --- Recalcular RPM ao mudar voltas (modo manual) ---
+    voltas.addEventListener('input', function () {
+      if (!running) {
+        updateFromManual();
+      }
+    });
+  </script>
+
+</body>
+
+</html>
